@@ -1,3 +1,23 @@
+html, body {
+  height: 100%;
+}
+
+.App {
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  /* background-color: #46045e; */
+}
+
+#light {
+  background-color: #f3ebf6;
+}
+
+#dark {
+  background-color: #46045e;
+  color: #f3ebf6;
+}
+
 .users {
   height: 250px;
   margin-top: 20px;

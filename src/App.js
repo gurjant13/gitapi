@@ -1,10 +1,43 @@
-import { React, useState, useEffect, Component } from 'react';
+import { React, useState, useEffect, Component, createContext } from 'react';
 import { Container, Form, Row, Label, InputGroup, Col, FormControl, Button } from 'react-bootstrap';
 import './App.css';
 import axios from 'axios';
+import Switch from '@mui/material/Switch';
+
+export const ThemeContext = createContext(null);
 
 function App() {
 
+
+  /////// LOGIC FOR LIGHT/ DARK MODE
+
+
+
+  const [theme, setTheme] = useState("light");
+
+  const toggleTheme = () => {
+
+    // alert(theme);
+
+    setTheme((curr) => (curr === "light" ? "dark" : "light"));
+  };
+
+
+
+  useEffect(() => {
+    const data = window.localStorage.getItem("myColor");
+    // console.log('data', data)
+    if (data !== null) setTheme(data);
+  }, []);
+
+
+
+  useEffect(() => {
+    window.localStorage.setItem("myColor", theme);
+  }, [theme]);
+
+
+  /////// SETTING THE STATES
 
   const [user, setUser] = useState("");
   const [record, setRecord] = useState("");
@@ -18,7 +51,7 @@ function App() {
     // alert(user);
 
 
-    /////////////////////
+    ////// FETCH REQUEST FOR USER DETAILS
 
     await axios.get(`https://api.github.com/users/${user}`)
       .then(
@@ -33,7 +66,7 @@ function App() {
         }
       });
 
-    ///////////////////
+    /////// FETCH REQUEST FOR REPOSITORIES
 
     await axios.get(`https://api.github.com/users/${user}/repos`, {
       params: {
@@ -53,105 +86,113 @@ function App() {
 
 
   return (
-    <div className="App">
+
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
 
 
+      <div className="App" id={theme}>
+
+        {/* <button onClick={getData}>Button</button> */}
+
+        {/* {record.login} */}
 
 
-      {/* <button onClick={getData}>Button</button> */}
+        <Switch onChange={toggleTheme} color="secondary" defaultChecked/>
+
+        <Container>
+          <Row className="justify-content-md-center">
 
 
-
-      {/* {record.login} */}
-
-      <Container>
-        <Row className="justify-content-md-center">
+            <Row className="align-items-center">
 
 
-          <Row className="align-items-center">
+              <Col md="4">
+
+                <form className='post__commentBox'>
+                  <input className='post__input' type="text"
+                    placeholder="Username"
+                    onChange={(e) => setUser(e.target.value)}
+                  />
+
+                  <button className="post__button"
+                    
+                    onClick={getData}
+                  >
+                    Search
+                  </button>
+
+                </form>
 
 
-            <Col md="4">
+                {/* RENDERING USER DETAILS */}
 
-              <form className='post__commentBox'>
-                <input className='post__input' type="text"
-                  placeholder="Username"
-                  onChange={(e) => setUser(e.target.value)}
-                />
+                {record.login && (
 
-                <button className="post__button"
-                  // disabled={!comment}
-                  // type="submit"
-                  onClick={getData}
-                >
-                  Search
-                </button>
+                  <div className="users">
 
-              </form>
-
-
-              {!record.login ? (<h1></h1>) : (
-
-              <div className="users">
-
-                <div>
-                  <img className="users__image" src={record.avatar_url} />
-                </div>
-
-                Username - {record.login}
-                <br />
-                Followers - {record.followers}
-                <br />
-                Repositories Count - {record.public_repos}
-
-
-              </div>
-
-  )
-  }
-
-              {repos &&
-                repos.map((item) => {
-                  return (
-
-                    <div key={item.id} className="repos">
-
-                     
-
-                      Repository - {item.name}
-                      <br />
-                      Stars - {item.stargazers_count}
-                      <br />
-                      Forks - {item.forks}
-
-
+                    <div>
+                      <img className="users__image" src={record.avatar_url} />
                     </div>
 
-                  );
-                })}
+                    Username - {record.login}
+                    <br />
+                    Followers - {record.followers}
+                    <br />
+                    Repositories Count - {record.public_repos}
 
 
-              
+                  </div>
 
-            </Col>
+                )
+                }
+
+
+                {/* RENDERING REPOSITORY DETAILS */}
+
+                {repos &&
+                  repos.map((item) => {
+                    return (
+
+                      <div key={item.id} className="repos">
+
+
+
+                        Repository Name - {item.name}
+                        <br />
+                        Stars - {item.stargazers_count}
+                        <br />
+                        Forks - {item.forks}
+
+
+                      </div>
+
+                    );
+                  })}
+
+
+
+
+              </Col>
+
+            </Row>
+
+
+
+
+
+
 
           </Row>
 
+        </Container>
 
 
 
 
 
+      </div>
 
-        </Row>
-
-      </Container>
-
-
-
-
-
-    </div>
+    </ThemeContext.Provider>
   );
 }
 
